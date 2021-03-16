@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LibraryDomain.LibraryItemAggregate
 {
-    interface ILibraryItemRepository
+    public class Category
     {
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LibraryDomain.LibraryItemAggregate
 {
-    class LibraryItem
+    public class LibraryItem
     {
         public int Id { get; set; }
         public Category Category { get; set; }

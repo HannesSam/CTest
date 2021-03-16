@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BuisnessLogic
+namespace TestLib
 {
     public class Class1
     {

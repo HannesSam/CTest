@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BlazorFrontEnd
+namespace Library.Web
 {
     public class Program
     {
