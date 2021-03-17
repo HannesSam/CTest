@@ -1,0 +1,30 @@
+﻿@using Library.Web.Model
+@using LibraryDomain.LibraryItemAggregate
+
+<h3>AddBookForm</h3>
+
+<EditForm Model="@test" OnValidSubmit="@InvokeParentMethod">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText id="title" @bind-Value="test.Title" />
+    <InputText id="author" @bind-Value="test.Author" />
+    <InputNumber id="pages" @bind-Value="test.Pages" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public Action<LibraryItem> ParentMethod { get; set; }
+
+    private DisplayBook test = new DisplayBook();
+    private LibraryItem test2 = new LibraryItem();
+    private void InvokeParentMethod()
+    {
+        test.IsBorrowable = true;
+        test.Type = LibraryItemType.Book;
+        ParentMethod?.Invoke(test2);
+    }
+}

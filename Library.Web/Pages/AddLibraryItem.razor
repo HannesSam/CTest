@@ -1,0 +1,63 @@
+﻿@using Library.Web.Model
+@using Library.Web.Services
+@using Library.Web.Pages.LibraryItemForms
+@using LibraryDomain.LibraryItemAggregate
+@inject LibraryService libService
+
+<h4>Insert new LibraryItem</h4>
+
+@if (LibraryItem is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <EditForm Model="LibraryItem">
+        <InputSelect @bind-Value="LibraryItem.Type">
+            @foreach (var type in Enum.GetValues(typeof(LibraryItemType)))
+                {
+                <option>@type</option>
+                }
+        </InputSelect>
+
+    </EditForm>
+
+
+    @switch (LibraryItem.Type)
+    {
+        case LibraryItemType.Book:
+            <AddBookForm ParentMethod="@InsertLibraryitem"></AddBookForm>
+            break;
+        case LibraryItemType.DVD:
+            <AddDVDForm></AddDVDForm>
+            break;
+        case LibraryItemType.AudioBook:
+            break;
+        case LibraryItemType.ReferenceBook:
+            break;
+        default:
+            break;
+    }
+    <p>@test</p>
+
+}
+
+
+
+@*<EditForm @model="@libraryItem" OnInvalidSubmit="@InsertLibraryitem">
+
+
+
+    </EditForm>*@
+
+@code {
+    private string test = "test";
+    protected DisplayLibraryItem LibraryItem { get; set; } = new DisplayLibraryItem();
+
+
+
+    protected void InsertLibraryitem(LibraryItem libraryItem)
+    {
+        //libService.AddLibraryItem()
+    }
+}
