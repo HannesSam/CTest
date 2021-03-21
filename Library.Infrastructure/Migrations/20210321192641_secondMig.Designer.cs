@@ -3,14 +3,16 @@ using System;
 using Library.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Library.Infrastructure.Migrations
 {
     [DbContext(typeof(LibraryItemContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20210321192641_secondMig")]
+    partial class secondMig
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,7 +41,7 @@ namespace Library.Infrastructure.Migrations
                     b.Property<string>("Author")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("BorrowDate")
+                    b.Property<DateTime>("BorrowDate")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Borrower")

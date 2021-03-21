@@ -1,0 +1,61 @@
+﻿@using LibraryDomain.DTOs
+@using LibraryDomain.LibraryItemAggregate
+@using LibraryDomain.Services
+
+<EditForm Model="@book" OnValidSubmit="@InvokeParentMethod">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label>
+            Title:
+            <InputText class="form-control" id="title" @bind-Value="book.Title" />
+        </label>
+    </div>
+    <div class="form-group">
+        <label>
+            Author:
+            <InputText class="form-control" id="author" @bind-Value="book.Author" />
+        </label>
+    </div>
+    <div class="form-group">
+        <label>
+            Pages:
+            <InputNumber class="form-control" id="pages" @bind-Value="book.Pages" />
+        </label>
+    </div>
+    @if (AddItem)
+    {
+        <button type="submit" class="btn btn-primary">Add</button>
+    }
+    else
+    {
+        <button type="submit" class="btn btn-primary">Update</button>
+    }
+
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public LibraryItem libraryItem { get; set; }
+
+    [Parameter]
+    public Action<LibraryItem> ParentMethod { get; set; }
+
+    [Parameter]
+    public bool AddItem { get; set; }
+
+    private BookDTO book { get; set; }
+
+    private void InvokeParentMethod()
+    {
+        LibraryItem libraryItem = LibraryItemMapping.BookToLibraryItem(book);
+        ParentMethod?.Invoke(libraryItem);
+    }
+
+    protected override void OnInitialized()
+    {
+        book = LibraryItemMapping.LibraryItemToBook(libraryItem);
+    }
+
+}

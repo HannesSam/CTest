@@ -1,0 +1,74 @@
+﻿@using LibraryDomain.LibraryItemAggregate
+@using LibraryDomain.DTOs
+@using Library.Web.Components.UpdateLibraryItem
+@using LibraryDomain.Services
+
+@inject LibraryService libService
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            @if (AddItem)
+            {
+                <EditForm Model="LibraryItem">
+                    <InputSelect @bind-Value="LibraryItem.Type">
+                        @foreach (var type in Enum.GetValues(typeof(LibraryItemType)))
+                            {
+                            <option>@type</option>
+                            }
+                    </InputSelect>
+
+                </EditForm>
+            }
+
+
+            @switch (LibraryItem.Type)
+            {
+                case LibraryItemType.Book:
+                    <BookForm ParentMethod="@AddOrUpdate" libraryItem="@LibraryItem" AddItem="@AddItem" />
+                    break;
+                case LibraryItemType.DVD:
+                    break;
+                case LibraryItemType.AudioBook:
+                    break;
+                case LibraryItemType.ReferenceBook:
+                    break;
+                default:
+                    break;
+            }
+        </div>
+        @if (!AddItem)
+        {
+            <div class="col">
+                <BorrowForm LibraryItem="@LibraryItem" />
+            </div>
+        }
+
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public LibraryItem LibraryItem { get; set; }
+
+    [Parameter]
+    public bool AddItem { get; set; }
+
+    private void AddOrUpdate(LibraryItem libraryItem)
+    {
+        if (AddItem)
+        {
+            libService.AddLibraryItem(libraryItem);
+            LibraryItemsPageData.LibraryItems.Add(libraryItem);
+        }
+        else
+        {
+            libService.UpdateLibraryItem(libraryItem);
+            //Update item
+        }
+
+    }
+
+
+}

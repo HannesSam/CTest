@@ -18,7 +18,16 @@ namespace LibraryDomain.LibraryItemAggregate
         public int? RunTimeMinutes { get; set; }
         public bool IsBorrowable { get; set; }
         public string Borrower { get; set; }
-        public DateTime BorrowDate { get; set; }
-        public string Type { get; set; }
+        public DateTime? BorrowDate { get; set; }
+        public LibraryItemType Type { get; set; }
+    }
+
+    public enum LibraryItemType
+    {
+        Book,
+        DVD,
+        AudioBook,
+        ReferenceBook
+
     }
 }

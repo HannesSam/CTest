@@ -1,5 +1,5 @@
 using Library.Infrastructure;
-using Library.Web.Services;
+using LibraryDomain.Services;
 using LibraryDomain.LibraryItemAggregate;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Blazored.Modal;
 
 namespace Library.Web
 {
@@ -29,6 +30,8 @@ namespace Library.Web
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddBlazoredModal();
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<LibraryService>();

@@ -1,15 +1,15 @@
-﻿@using Library.Web.Model
+﻿@using LibraryDomain.DTOs
 @using LibraryDomain.LibraryItemAggregate
 
 <h3>AddBookForm</h3>
 
-<EditForm Model="@test" OnValidSubmit="@InvokeParentMethod">
+<EditForm Model="@book" OnValidSubmit="@InvokeParentMethod">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <InputText id="title" @bind-Value="test.Title" />
-    <InputText id="author" @bind-Value="test.Author" />
-    <InputNumber id="pages" @bind-Value="test.Pages" />
+    <InputText id="title" @bind-Value="book.Title" />
+    <InputText id="author" @bind-Value="book.Author" />
+    <InputNumber id="pages" @bind-Value="book.Pages" />
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </EditForm>
@@ -17,14 +17,13 @@
 
 @code {
     [Parameter]
-    public Action<LibraryItem> ParentMethod { get; set; }
+    public Action<LibraryItemDTO> ParentMethod { get; set; }
 
-    private DisplayBook test = new DisplayBook();
-    private LibraryItem test2 = new LibraryItem();
+    private BookDTO book = new BookDTO();
     private void InvokeParentMethod()
     {
-        test.IsBorrowable = true;
-        test.Type = LibraryItemType.Book;
-        ParentMethod?.Invoke(test2);
+        book.IsBorrowable = true;
+        book.Type = LibraryItemType.Book;
+        ParentMethod?.Invoke(book);
     }
 }

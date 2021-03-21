@@ -11,5 +11,9 @@ namespace LibraryDomain.LibraryItemAggregate
         IQueryable<LibraryItem> LibraryItems { get; }
         IQueryable<Category> Categories { get; }
         public bool AddLibraryItem(LibraryItem libraryItem);
+        public bool DeleteLibraryItem(LibraryItem libraryItem);
+        public bool UpdateLibraryItem(LibraryItem libraryItem);
+        public bool AddCategory(Category category);
+       
     }
 }
