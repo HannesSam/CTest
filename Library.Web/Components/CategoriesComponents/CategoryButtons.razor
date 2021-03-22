@@ -1,0 +1,49 @@
+﻿@using Library.Domain.Entities
+@using Library.Web.Service
+@using Library.Domain.ServiceInterfaces
+
+@inject ICategoryService DomainCategoryService
+
+<div class="btn-group" role="group">
+    <button class="btn btn-info" @onclick="@(() => ShowModalAddOrEdit())">Edit</button>
+    <button class="btn btn-danger" @onclick="@DeleteCategory">Delete</button>
+</div>
+
+@code {
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [Parameter]
+    public Category Category { get; set; }
+    [Parameter]
+    public CategoriesListUIService CategoriesListService { get; set; }
+
+    private void DeleteCategory()
+    {
+        // Här kollar vi om det finns några kopplade libraryItems till denna kategori och tar bort den endast ifall det inte finns några kopplingar.
+        // Denna lösning funkar men borde egentligen utföras i domänen tycker jag men det skulle kräva en ganska stor omstrukturering av koden.
+        int connectedItems = CategoriesListService.LibraryItems.Where(l => l.CategoryId == Category.Id).Count();
+        if (connectedItems > 0)
+        {
+            CategoriesListService.Message = $"Category has not been deleted since {connectedItems} items are connected to this category.";
+            CategoriesListService.CallRequestRefresh();
+        }
+        else
+        {
+            DomainCategoryService.DeleteCategory(Category);
+            CategoriesListService.Categories.Remove(Category);
+            CategoriesListService.Message = "Category has been deleted!";
+            CategoriesListService.CallRequestRefresh();
+        }
+    }
+
+    // Visar modalen och skickar med att det gäller en edit i detta fall.
+    void ShowModalAddOrEdit()
+    {
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(Category), Category);
+        parameters.Add("AddItem", false);
+        parameters.Add("CategoriesListService", CategoriesListService);
+
+        Modal.Show<EditOrAddCategory>("Update Category", parameters);
+    }
+
+}

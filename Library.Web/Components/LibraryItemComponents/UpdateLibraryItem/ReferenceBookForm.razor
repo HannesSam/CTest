@@ -1,0 +1,94 @@
+﻿@using Library.Domain.DTOs
+@using Library.Domain.Entities
+@using Library.Domain.MappingInterfaces
+@using Library.Domain.Services
+
+@inject ILibraryItemMapping LibraryItemMapping
+
+<EditForm Model="@referenceBook" OnValidSubmit="@InvokeParentMethod">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label>
+            Title:
+            <InputText class="form-control" id="title" @bind-Value="referenceBook.Title" />
+        </label>
+    </div>
+    <div class="form-group">
+        <label>
+            Author:
+            <InputText class="form-control" id="author" @bind-Value="referenceBook.Author" />
+        </label>
+    </div>
+    <div class="form-group">
+        <label>
+            Pages:
+            <InputNumber class="form-control" id="pages" @bind-Value="referenceBook.Pages" />
+        </label>
+    </div>
+    <div class="form-group">
+        <label>
+            Category:
+            <InputSelect class="form-control" id="category" @bind-Value="referenceBook.CategoryName">
+                @* Ifall ett kategori namn inte är satt så skapas en tom option som är den som visas först i listan för användaren
+        detta för att göra det tydligt att de måste välja en kategori. *@
+                @if (referenceBook.CategoryName == null)
+                {
+                    <option></option>
+                }
+
+                @foreach (var category in LibraryListService.Categories)
+                {
+                    <option>@category.CategoryName</option>
+                }
+            </InputSelect>
+        </label>
+    </div>
+    @if (AddItem)
+    {
+        <button type="submit" class="btn btn-primary">Add</button>
+    }
+    else
+    {
+        <button type="submit" class="btn btn-primary">Update</button>
+    }
+
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public LibraryItem libraryItem { get; set; }
+    // Callback delegat till EditOrAddLibrary komonenten.
+    [Parameter]
+    public Action<LibraryItem> AddOrUpdate { get; set; }
+    [Parameter]
+    public bool AddItem { get; set; }
+    [Parameter]
+    public LibraryListUIService LibraryListService { get; set; }
+
+    private ReferenceBookDTO referenceBook { get; set; }
+
+    private void InvokeParentMethod()
+    {
+        LibraryItem libItem = LibraryItemMapping.ReferenceBookToLibraryItem(referenceBook);
+
+        // Det här är inte en optimal lösning men den löser ett problem med att InputSelect funktionen bara tillåter autentisering på strängar.
+        // Detta går att komma runt men det skulle innebära att genom en override skapa en custom InputSelect vilket skulle ta för mycket tid för detta projekt.
+        libItem.CategoryId = LibraryListService.Categories.Where(c => c.CategoryName == referenceBook.CategoryName).Select(c => c.Id).FirstOrDefault();
+        AddOrUpdate?.Invoke(libItem);
+    }
+
+    protected override void OnInitialized()
+    {
+        if (AddItem)
+        {
+            referenceBook = new ReferenceBookDTO();
+        }
+        else
+        {
+            referenceBook = LibraryItemMapping.LibraryItemToReferenceBook(libraryItem);
+        }
+
+    }
+}

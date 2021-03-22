@@ -1,0 +1,41 @@
+﻿@using Library.Domain.Entities
+@using Library.Domain.ServiceInterfaces
+@using Library.Web.Service
+
+@inject ILibraryItemService DomainLibraryItemService
+
+<div class="btn-group" role="group">
+
+    <button class="btn btn-info" @onclick="@(() => ShowEditLibraryItem())">Edit</button>
+    <button class="btn btn-danger" @onclick="@DeleteItem">Delete</button>
+
+</div>
+
+
+@code {
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [Parameter]
+    public LibraryItem libraryItem { get; set; }
+    [Parameter]
+    public LibraryListUIService LibraryListService { get; set; }
+
+    private void DeleteItem()
+    {
+        DomainLibraryItemService.DeleteLibraryItem(libraryItem);
+        LibraryListService.LibraryItems.Remove(libraryItem);
+        LibraryListService.Message = "Item has been deleted!";
+        LibraryListService.CallRequestRefresh();
+    }
+
+    // Visar modalen och skickar med att det gäller en edit i detta fall.
+    void ShowEditLibraryItem()
+    {
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(libraryItem), libraryItem);
+        parameters.Add("AddItem", false);
+        parameters.Add("LibraryListService", LibraryListService);
+
+        Modal.Show<EditOrAddLibraryItem>($"Update {libraryItem.Type}", parameters);
+    }
+
+}

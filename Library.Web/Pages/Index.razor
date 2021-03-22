@@ -1,0 +1,46 @@
+﻿@page "/"
+
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <div class="row text-center justify-content-center">
+                <div class="col-xl-10 text-center">
+                    <h4 class="display-4">Consid övningsuppgift: Scenario 1</h4>
+                    <p>Av: Hannes Samskog</p>
+                    <hr class="my-4">
+                    <p class="text-center">
+                        Hej Consid och tack för en rolig och lärorik övning!
+                    </p>
+                    <br />
+                    <p class="text-left">
+                        <strong>Lite kommentarer kring uppgiten</strong>
+
+                        <br />
+                        <br />
+                        För att köra:
+                        <br />
+                        Gå in i package manager console och sätt den till Library.Infrastructure. Kör sedan "Add-Migration FirstMigration" och sedan "Update-Database" så sätts databasen upp
+                        och fylls på med testdata.
+                        <br />
+                        <br />
+                        Jag har tidigare gjort en del MVC projekt och detta var första gången jag tog mig an att konstruera ett Blazor projekt vilket var väldigt lärorikt men ledde till att jag gjorde en
+                        del refactoring under resans gång. Trots detta så ser jag nu att om jag hade gjort om projektet så hade jag testat en del andra strukturer men jag hoppas ni kan ha överseende med
+                        att struktureringen av komponenter och flödet av data och metoder mellan dem kanske inte alltid är perfekt.
+                        <br />
+                        <br />
+                        Det var även första gången jag testade Onion Architecture i alla fall på
+                        det sättet att Domain (BusinessLogic) inte hade en direkt dependency på Infrastructure (DataAccess). Det var inte en så stor förändring mot hur jag brukar bygga upp applikationer
+                        men jag läste en stor mängd artiklar och kan ha blandat lite olika idéer på ett rörigt sätt så även där har jag lite tankar kring hur jag hade gjort ifall jag startat om från början
+                        igen. Framförallt gäller det att viss logik som ligger i Web delen nu borde flyttas till Domain och vice versa. Plus att jag även hade velat lägga till egna Exceptions och hanterat
+                        valideringen av data även i Domain projektet så att den går att använda över en rad olika applikationer inte bara med detta Web projekt. Men då hade jag säkert tänkt att jag ville lägga
+                        till unit tests i Domain också osv så tillslut måste man bara sätta stopp helt enkelt går alltid att göra något mer.
+
+                        <br />
+                        <br />
+                        Men överlag  är jag nöjd med min lösning och hoppas ni är detsamma! Så nu ska jag dra mig tillbaka till tentaplugget ett tag men hoppas få höra från er snart och få möjligheten att
+                        diskutera min lösning och era tankar och idéer kring den på en kommande intervju. Eller bara prata om hur bra Blazor är för jag är nu helt såld.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>

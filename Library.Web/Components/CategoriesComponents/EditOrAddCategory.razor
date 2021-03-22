@@ -1,0 +1,68 @@
+﻿@inject ICategoryService DomainCategoryService
+@inject ICategoryMapping CategoryMapping
+
+<EditForm Model="@CategoryDTO" OnValidSubmit="@AddOrUpdate">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label>
+            Name:
+            <InputText class="form-control" id="title" @bind-Value="CategoryDTO.CategoryName" />
+        </label>
+    </div>
+    @if (AddItem)
+    {
+        <button type="submit" class="btn btn-primary">Add</button>
+    }
+    else
+    {
+        <button type="submit" class="btn btn-primary">Update</button>
+    }
+
+</EditForm>
+
+
+
+@code {
+    [Parameter]
+    public Category Category { get; set; }
+    // Denna parameter reglerar ifall modalen ska använda logiken för att lägga till ett nytt objekt eller uppdatera ett redan existerande sådant.
+    [Parameter]
+    public bool AddItem { get; set; }
+    [Parameter]
+    public CategoriesListUIService CategoriesListService { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    private CategoryDTO CategoryDTO = new();
+
+    protected override void OnInitialized()
+    {
+        // Ifall objektet ska uppdateras så sparas det nuvarande objektet i den lokala objekt instansen.
+        if (!AddItem)
+        {
+            CategoryDTO = CategoryMapping.CategoryToCategoryDTO(Category);
+        }
+    }
+
+    private void AddOrUpdate()
+    {
+        Category CategoryToAdd = CategoryMapping.CategoryDTOToCategory(CategoryDTO);
+
+        if (AddItem)
+        {
+            DomainCategoryService.AddCategory(CategoryToAdd);
+            CategoriesListService.Categories.Add(CategoryToAdd);
+            CategoriesListService.Message = "Category has been added!";
+            CategoriesListService.CallRequestRefresh();
+            ModalInstance.CloseAsync();
+        }
+        else
+        {
+            DomainCategoryService.UpdateCategory(CategoryToAdd);
+            CategoriesListService.Message = "Category has been updated!";
+            CategoriesListService.CallRequestRefresh();
+            ModalInstance.CloseAsync();
+        }
+
+    }
+
+}

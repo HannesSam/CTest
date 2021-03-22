@@ -1,19 +1,15 @@
+using Blazored.Modal;
+using Library.Domain.Mapping;
+using Library.Domain.MappingInterfaces;
+using Library.Domain.Repositorys;
+using Library.Domain.ServiceInterfaces;
+using Library.Domain.Services;
 using Library.Infrastructure;
-using LibraryDomain.Services;
-using LibraryDomain.LibraryItemAggregate;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Blazored.Modal;
 
 namespace Library.Web
 {
@@ -34,10 +30,18 @@ namespace Library.Web
             services.AddBlazoredModal();
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<LibraryService>();
-            services.AddTransient<ILibraryItemRepository, LibraryItemRepository>();
-            //addscoped
-            //Or tansient? 
+
+            // Kopplar alla mapping services.
+            services.AddScoped<ILibraryItemMapping, LibraryItemMapping>();
+            services.AddScoped<ICategoryMapping, CategoryMapping>();
+
+            // Kopplar alla services för databas typer från vårt domain.
+            services.AddScoped<ILibraryItemService, LibraryItemService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+
+            // Kopplar databsen i infrastructure till vår domain.
+            services.AddScoped<ILibraryItemRepository, LibraryItemRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

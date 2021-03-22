@@ -1,0 +1,95 @@
+﻿@inject ILibraryItemService DomainLibraryItemService
+
+@if (borrowed)
+{
+    <p>@statusMessage</p>
+
+    <p>Return this item:</p>
+    <EditForm Model="@borrowItem" OnValidSubmit="@ReturnLibraryItem">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="form-group">
+            <label>
+                Name:
+                <InputText class="form-control" id="borrower" @bind-Value="@borrowItem.Borrower" />
+            </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Return</button>
+    </EditForm>
+}
+else
+{
+    <p>@statusMessage</p>
+
+    <p>Checkout this item:</p>
+    <EditForm Model="@LibraryItem" OnValidSubmit="@BorrowLibraryItem">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="form-group">
+            <label>
+                Name:
+                <InputText class="form-control" id="borrower" @bind-Value="@LibraryItem.Borrower" />
+            </label>
+        </div>
+        <button type="submit" class="btn btn-primary">Checkout</button>
+    </EditForm>
+}
+
+
+
+@code {
+    [Parameter]
+    public LibraryItem LibraryItem { get; set; }
+    [Parameter]
+    public LibraryListUIService LibraryListService { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+    private LibraryItem borrowItem = new();
+    private bool borrowed;
+    private string statusMessage;
+
+    protected override void OnInitialized()
+    {
+        if (LibraryItem.Borrower == null)
+        {
+            borrowed = false;
+        }
+        else
+        {
+            borrowed = true;
+        }
+    }
+
+    private void BorrowLibraryItem()
+    {
+        if (DomainLibraryItemService.BorrowLibraryItem(LibraryItem))
+        {
+            borrowed = true;
+            LibraryListService.Message = $"Book is now borrowed by {LibraryItem.Borrower}";
+            LibraryListService.CallRequestRefresh();
+            ModalInstance.CloseAsync();
+        }
+        else
+        {
+            statusMessage = "Error when borrowing this book";
+        }
+    }
+
+    private void ReturnLibraryItem()
+    {
+        string nameOfFormerBorrowe = borrowItem.Borrower;
+        borrowItem.Id = LibraryItem.Id;
+        if (DomainLibraryItemService.ReturnLibraryItem(borrowItem))
+        {
+            borrowed = false;
+            LibraryListService.Message = $"Book is now returned by {nameOfFormerBorrowe}";
+            LibraryListService.CallRequestRefresh();
+            ModalInstance.CloseAsync();
+        }
+        else
+        {
+            statusMessage = "Error when returning this book check the name again";
+        }
+    }
+
+}

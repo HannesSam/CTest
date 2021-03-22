@@ -1,51 +1,34 @@
-﻿using LibraryDomain.LibraryItemAggregate;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+﻿using Library.Domain.Entities;
+using Library.Domain.Repositorys;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Library.Infrastructure
 {
-    public class LibraryItemContext : DbContext
-    {
-        public DbSet<LibraryItem> LibraryItems { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-         => options.UseSqlite(@"Data Source=C:\sqlLite\LibraryItems.db");
-    }
-
+    /// <summary>
+    /// Repository för alla LibraryItems
+    /// </summary>
     public class LibraryItemRepository : ILibraryItemRepository
     {
-        readonly LibraryItemContext _db;
+        readonly LibraryContext _db;
         public LibraryItemRepository()
         {
-            _db = new LibraryItemContext();
+            _db = new LibraryContext();
         }
 
         public IQueryable<LibraryItem> LibraryItems => _db.LibraryItems;
-        public IQueryable<Category> Categories => _db.Categories;
-
-        public bool AddCategory(Category category)
-        {
-            _db.Categories.Add(category);
-            return true;
-        }
 
         public bool AddLibraryItem(LibraryItem libraryItem)
         {
             _db.Add(libraryItem);
-            _db.SaveChanges();
+            _db.SaveChangesAsync();
             return true;
         }
 
 
         public bool DeleteLibraryItem(LibraryItem libraryItem)
         {
-            //var itemToRemove = new LibraryItem { Id = id };
             _db.Remove(libraryItem);
-            _db.SaveChanges();
+            _db.SaveChangesAsync();
             return true;
         }
 
@@ -53,18 +36,20 @@ namespace Library.Infrastructure
 
         public bool UpdateLibraryItem(LibraryItem libraryItem)
         {
+            // Hämtar det item som ska uppdateras. 
             LibraryItem itemToUpdate = _db.LibraryItems.FirstOrDefault(item => item.Id == libraryItem.Id);
 
             if (itemToUpdate != null)
             {
+                // Detta kan såklart mappas automatikst men jag gjorde det av någon anledning det lite bökigt för mig själv.
                 itemToUpdate.Author = libraryItem.Author;
-                itemToUpdate.Category = libraryItem.Category;
+                itemToUpdate.CategoryId = libraryItem.CategoryId;
                 itemToUpdate.Pages = libraryItem.Pages;
                 itemToUpdate.RunTimeMinutes = libraryItem.RunTimeMinutes;
                 itemToUpdate.Title = libraryItem.Title;
                 itemToUpdate.Borrower = libraryItem.Borrower;
 
-                _db.SaveChanges();
+                _db.SaveChangesAsync();
                 return true;
             }
 

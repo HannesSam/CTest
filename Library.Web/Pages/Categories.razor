@@ -1,86 +1,71 @@
 ﻿@page "/Categories"
 
-@using LibraryDomain.LibraryItemAggregate
-@using Library.Web.Components
-@using LibraryDomain.Services
+@using Library.Web.Components.CategoriesComponents
 
-@inject LibraryService libService
-
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
-@*<button @onclick="@(() => ShowEditCategory())">AddLibraryItem</button>*@
-
-@*<p>@LibraryItemsPageData.Message</p>*@
+@inject ICategoryService DomainCategoryService
+@inject ILibraryItemService DomainLibraryItemService
 
 
+<h1>Categories</h1>
 
-@if (LibraryItemsPageData.LibraryItems is null)
+<button class="btn btn-primary" @onclick="@(() => ShowModalAddOrEdit())">AddCategory</button>
+
+
+@if (CategoriesListService.Message != "")
 {
-    <p>Loading...</p>
+    <div class="alert alert-primary" role="alert">
+        @CategoriesListService.Message
+    </div>
 }
-else
-{
-    <table class="table table-striped">
-        <thead>
+
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <td>Name</td>
+            <td>Number of connected items</td>
+            <td>Actions</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in CategoriesListService.Categories)
+        {
             <tr>
-                <td>Title</td>
-                <td>Author</td>
-                <td>Category</td>
-                <td>Pages</td>
-                <td>RunTimeMinutes</td>
-                <td>Type</td>
-                <td>Borrowable</td>
-                <td>Borrower</td>
-                <td>BorrowDate</td>
-                <td>Actions</td>
+                <td>@category.CategoryName</td>
+                <td>@CategoriesListService.LibraryItems.Where(l => l.CategoryId == category.Id).Count()</td>
+                <td> <CategoryButtons CategoriesListService="@CategoriesListService" Category="@category" /> </td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (var libraryItem in LibraryItemsPageData.LibraryItems)
-            {
-                <tr>
-                    <td>@libraryItem.Title</td>
-                    <td>@libraryItem.Author</td>
-                    <td>@libraryItem.Category</td>
-                    <td>@libraryItem.Pages</td>
-                    <td>@libraryItem.RunTimeMinutes</td>
-                    <td>@libraryItem.Type</td>
-                    <td>@libraryItem.IsBorrowable</td>
-                    <td>@libraryItem.Borrower</td>
-                    <td>@libraryItem.BorrowDate</td>
-                    <td> <LibraryItemButtons libraryItem="@libraryItem" /> </td>
-                </tr>
+        }
+    </tbody>
+</table>
 
-            }
-        </tbody>
 
-    </table>
-}
 
 @code {
-    bool showAddLibraryItem = false;
-    LibraryItem emptyLibraryItem = new();
     [CascadingParameter] public IModalService Modal { get; set; }
+    public CategoriesListUIService CategoriesListService;
 
-    //Kanske göra async?
     protected override void OnInitialized()
     {
-        LibraryItemsPageData.LibraryItems = libService.GetLibraryItems();
+        CategoriesListService = new();
+        CategoriesListService.Categories = DomainCategoryService.GetCategories();
+        CategoriesListService.LibraryItems = DomainLibraryItemService.GetLibraryItems();
+        CategoriesListService.Message = "";
+        CategoriesListService.RefreshRequested += RefreshMe;
+
     }
 
-    protected void SetShowLibraryItem()
-    {
-        showAddLibraryItem = !showAddLibraryItem;
-    }
-
-    private void ShowEditLibraryItem()
+    private void ShowModalAddOrEdit()
     {
         var parameters = new ModalParameters();
-        parameters.Add("LibraryItem", emptyLibraryItem);
         parameters.Add("AddItem", true);
+        parameters.Add("CategoriesListService", CategoriesListService);
 
-        Modal.Show<EditLibraryItem>("Edit Movie", parameters);
+        Modal.Show<EditOrAddCategory>("Add Category", parameters);
+    }
+
+    private void RefreshMe()
+    {
+        StateHasChanged();
     }
 }

@@ -1,0 +1,88 @@
+﻿@using Library.Web.Components.LibraryItemComponents.UpdateLibraryItem
+
+@inject ILibraryItemService DomainLibraryItemService
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            @*Om användaren vill lägga till ett nytt objekt så väljs här vilken typ av objekt som ska skapas.*@
+            @if (AddItem)
+            {
+                <EditForm Model="LibraryItem">
+                    <InputSelect @bind-Value="LibraryItem.Type">
+                        @foreach (var type in Enum.GetValues(typeof(LibraryItemType)))
+                            {
+                            <option>@type</option>
+                            }
+                    </InputSelect>
+                </EditForm>
+            }
+
+            @* Visar ett formulär baserat på vilket objekt som ska läggas till/updateras. Vid en refactoring hade jag 
+                flyttat in en del logik i LibraryListService för att göra detta mer överskådligt. *@
+            @switch (LibraryItem.Type)
+            {
+                case LibraryItemType.Book:
+                    <BookForm LibraryListService="@LibraryListService" AddOrUpdate="@AddOrUpdate" libraryItem="@LibraryItem" AddItem="@AddItem" />
+                    break;
+                case LibraryItemType.DVD:
+                    <DVDForm LibraryListService="@LibraryListService" AddOrUpdate="@AddOrUpdate" libraryItem="@LibraryItem" AddItem="@AddItem" />
+                    break;
+                case LibraryItemType.AudioBook:
+                    <AudioBookForm LibraryListService="@LibraryListService" AddOrUpdate="@AddOrUpdate" libraryItem="@LibraryItem" AddItem="@AddItem" />
+                    break;
+                case LibraryItemType.ReferenceBook:
+                    <ReferenceBookForm LibraryListService="@LibraryListService" AddOrUpdate="@AddOrUpdate" libraryItem="@LibraryItem" AddItem="@AddItem" />
+                    break;
+                default:
+                    break;
+            }
+        </div>
+        @* Ifall detta item går att låna och det inte handlar om att lägga till ett nytt objekt så visas låne formuläret *@
+        @if (!AddItem && LibraryItem.IsBorrowable)
+        {
+            <div class="col">
+                <BorrowForm LibraryListService="LibraryListService" LibraryItem="@LibraryItem" />
+            </div>
+        }
+
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public LibraryItem LibraryItem { get; set; }
+    // Denna parameter reglerar ifall modalen ska använda logiken för att lägga till ett nytt objekt eller uppdatera ett redan existerande sådant.
+    [Parameter]
+    public bool AddItem { get; set; }
+    [Parameter]
+    public LibraryListUIService LibraryListService { get; set; }
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+
+    private void AddOrUpdate(LibraryItem libraryItem)
+    {
+        if (AddItem)
+        {
+            DomainLibraryItemService.AddLibraryItem(libraryItem);
+            LibraryListService.LibraryItems.Add(libraryItem);
+            LibraryListService.Message = "Item has been added!";
+            LibraryListService.CallRequestRefresh();
+            ModalInstance.CloseAsync();
+        }
+        else
+        {
+            DomainLibraryItemService.UpdateLibraryItem(libraryItem);
+
+            // Icke optimal lösning på ett problem där categorin inte uppdaterades på skärmen trots att alla andra ändringar gjorde detta.
+            // Går såklart att lösa men skulle i så fall vilja göra en ganska stor refactoring av min kod så detta får duga så länge.
+            LibraryListService.LibraryItems = DomainLibraryItemService.GetLibraryItems();
+            LibraryListService.AssignCategoryNamesToLibraryItems();
+
+            LibraryListService.Message = "Item has been updated!";
+            LibraryListService.CallRequestRefresh();
+            ModalInstance.CloseAsync();
+        }
+
+    }
+}

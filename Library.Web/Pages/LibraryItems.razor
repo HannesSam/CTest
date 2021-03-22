@@ -1,0 +1,118 @@
+﻿@page "/LibraryItemsPage"
+
+@using Library.Web.Components.LibraryItemComponents
+
+@inject ILibraryItemService DomainLibraryItemService
+@inject ICategoryService DomainCategoryService
+
+
+<h1>Library</h1>
+
+<button class="btn btn-primary" @onclick="@(() => ShowModalAddOrEdit())">AddLibraryItem</button>
+<button class="btn btn-secondary" @onclick="@(() => SortByType())">Sort by type</button>
+<button class="btn btn-secondary" @onclick="@(() => SortByCategory())">Sort by category</button>
+
+
+@if (LibraryListService.Message != "")
+{
+    <div class="alert alert-primary" role="alert">
+        @LibraryListService.Message
+    </div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <td>Title</td>
+            <td>Author</td>
+            <td>Category</td>
+            <td>Pages</td>
+            <td>RunTimeMinutes</td>
+            <td>Type</td>
+            <td>Borrowable</td>
+            <td>Borrower</td>
+            <td>BorrowDate</td>
+            <td>Actions</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var libraryItem in LibraryListService.LibraryItems)
+        {
+            <tr>
+                <td>@libraryItem.Title @CreateAcronym(libraryItem) </td>
+                <td>@libraryItem.Author</td>
+                <td>@libraryItem.CategoryName</td>
+                <td>@libraryItem.Pages</td>
+                <td>@libraryItem.RunTimeMinutes</td>
+                <td>@libraryItem.Type</td>
+                @if (libraryItem.IsBorrowable)
+                {
+                    <td>Yes</td>
+                }
+                else
+                {
+                    <td>No</td>
+                }
+                <td>@libraryItem.Borrower</td>
+                <td>@libraryItem.BorrowDate</td>
+                <td> <LibraryItemButtons LibraryListService="@LibraryListService" libraryItem="@libraryItem" /> </td>
+            </tr>
+
+        }
+    </tbody>
+</table>
+
+
+
+@code {
+    LibraryItem emptyLibraryItem = new();
+    [CascadingParameter] public IModalService Modal { get; set; }
+    public LibraryListUIService LibraryListService;
+
+    protected override void OnInitialized()
+    {
+
+        LibraryListService = new();
+        LibraryListService.LibraryItems = DomainLibraryItemService.GetLibraryItems();
+        LibraryListService.Categories = DomainCategoryService.GetCategories();
+        LibraryListService.AssignCategoryNamesToLibraryItems();
+        SortByCategory();
+        LibraryListService.Message = "";
+        LibraryListService.RefreshRequested += RefreshMe;
+
+    }
+
+    private string CreateAcronym(LibraryItem libraryItem)
+    {
+        string acronym = new string(libraryItem.Title.Split(' ').Select(s => s[0]).ToArray());
+        acronym = $"({acronym})";
+        return acronym;
+    }
+
+
+    // Visar modalen och skickar med att det gäller en add i detta fall.
+    private void ShowModalAddOrEdit()
+    {
+        var parameters = new ModalParameters();
+        parameters.Add("LibraryItem", emptyLibraryItem);
+        parameters.Add("AddItem", true);
+        parameters.Add("LibraryListService", LibraryListService);
+
+        Modal.Show<EditOrAddLibraryItem>("Add Item", parameters);
+    }
+
+    private void SortByType()
+    {
+        LibraryListService.LibraryItems = LibraryListService.LibraryItems.OrderBy(l => l.Type).ToList();
+    }
+
+    private void SortByCategory()
+    {
+        LibraryListService.LibraryItems = LibraryListService.LibraryItems.OrderBy(l => l.CategoryName).ToList();
+    }
+
+    private void RefreshMe()
+    {
+        StateHasChanged();
+    }
+}
