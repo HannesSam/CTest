@@ -6,9 +6,9 @@ namespace Library.Domain.ServiceInterfaces
     public interface ICategoryService
     {
         List<Category> GetCategories();
-        void AddCategory(Category category);
+        bool AddCategory(Category category);
         void DeleteCategory(Category category);
         Category GetCategoryById(int id);
-        void UpdateCategory(Category category);
+        bool UpdateCategory(Category category);
     }
 }

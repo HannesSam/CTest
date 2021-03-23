@@ -46,10 +46,20 @@
     private void AddOrUpdate()
     {
         Category CategoryToAdd = CategoryMapping.CategoryDTOToCategory(CategoryDTO);
-
         if (AddItem)
         {
-            DomainCategoryService.AddCategory(CategoryToAdd);
+            Add(CategoryToAdd);
+        }
+        else
+        {
+            Update(CategoryToAdd);
+        }
+    }
+
+    private void Add(Category CategoryToAdd)
+    {
+        if (DomainCategoryService.AddCategory(CategoryToAdd))
+        {
             CategoriesListService.Categories.Add(CategoryToAdd);
             CategoriesListService.Message = "Category has been added!";
             CategoriesListService.CallRequestRefresh();
@@ -57,12 +67,23 @@
         }
         else
         {
-            DomainCategoryService.UpdateCategory(CategoryToAdd);
+            CategoriesListService.Message = "Category has not been added. Check that no category by the same name already exists.";
+            CategoriesListService.CallRequestRefresh();
+        }
+    }
+
+    private void Update(Category CategoryToAdd)
+    {
+        if (DomainCategoryService.UpdateCategory(CategoryToAdd))
+        {
             CategoriesListService.Message = "Category has been updated!";
             CategoriesListService.CallRequestRefresh();
             ModalInstance.CloseAsync();
         }
-
+        else
+        {
+            CategoriesListService.Message = "Category has not been updated. Check that no category by the same name already exists.";
+            CategoriesListService.CallRequestRefresh();
+        }
     }
-
 }
